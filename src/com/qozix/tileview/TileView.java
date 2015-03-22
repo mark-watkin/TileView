@@ -80,9 +80,10 @@ public class TileView extends ZoomPanLayout {
 	private PathManager pathManager;
 	private MarkerManager markerManager;
 	private CalloutManager calloutManager;
+    private boolean disableSuppress;
 
 
-	/**
+    /**
 	 * Constructor to use when creating a TileView from code.  Inflating from XML is not currently supported.
 	 * @param context (Context) The Context the TileView is running in, through which it can access the current theme, resources, etc.
 	 */
@@ -144,6 +145,13 @@ public class TileView extends ZoomPanLayout {
 	//------------------------------------------------------------------------------------
 	// Rendering API
 	//------------------------------------------------------------------------------------
+
+    /**
+     * Prevents the suppression of tile rendering when view is moving
+     */
+    public void disableSuppress() {
+        disableSuppress = true;
+    }
 
 	/**
 	 * Request that the current tile set is re-examined and re-drawn.
@@ -829,6 +837,14 @@ public class TileView extends ZoomPanLayout {
 	//------------------------------------------------------------------------------------
 
 
+    private void renderOnMovement() {
+        if (disableSuppress) {
+            requestRender();
+        } else {
+            suppressRender();
+        }
+    }
+
 	// make sure we keep the viewport UTD, and if layout changes we'll need to recompute what tiles to show
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -848,7 +864,7 @@ public class TileView extends ZoomPanLayout {
 
 	// tell the tile renderer to not start any more tasks, but it can continue with any that are already running
 	private void suppressRender() {
-		tileManager.suppressRender();
+        tileManager.suppressRender();
 	}
 
 
@@ -924,14 +940,14 @@ public class TileView extends ZoomPanLayout {
 		}
 		@Override
 		public void onDrag( Point point ) {
-			suppressRender();
+            renderOnMovement();
 			for ( TileViewEventListener listener : tileViewEventListeners ) {
 				listener.onDrag( point.x, point.y );
 			}
 		}
 		@Override
 		public void onFingerDown( Point point ) {
-			suppressRender();
+            renderOnMovement();
 			for ( TileViewEventListener listener : tileViewEventListeners ) {
 				listener.onFingerDown( point.x, point.y );
 			}
@@ -947,7 +963,7 @@ public class TileView extends ZoomPanLayout {
 		}
 		@Override
 		public void onFling( Point startPoint, Point finalPoint ) {
-			suppressRender();
+            renderOnMovement();
 			for ( TileViewEventListener listener : tileViewEventListeners ) {
 				listener.onFling( startPoint.x, startPoint.y, finalPoint.x, finalPoint.y );
 			}
@@ -961,7 +977,7 @@ public class TileView extends ZoomPanLayout {
 		}
 		@Override
 		public void onPinch( Point point ) {
-			suppressRender();
+            renderOnMovement();
 			for ( TileViewEventListener listener : tileViewEventListeners ) {
 				listener.onPinch( point.x, point.y );
 			}
@@ -975,7 +991,7 @@ public class TileView extends ZoomPanLayout {
 		}
 		@Override
 		public void onPinchStart( Point point ) {
-			suppressRender();
+            renderOnMovement();
 			for ( TileViewEventListener listener : tileViewEventListeners ) {
 				listener.onPinchStart( point.x, point.y );
 			}
