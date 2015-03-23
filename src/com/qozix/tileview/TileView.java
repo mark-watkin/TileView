@@ -80,7 +80,7 @@ public class TileView extends ZoomPanLayout {
 	private PathManager pathManager;
 	private MarkerManager markerManager;
 	private CalloutManager calloutManager;
-    private boolean disableSuppress;
+    private boolean shouldSuppressRenderOnMovement;
 
 
     /**
@@ -147,10 +147,11 @@ public class TileView extends ZoomPanLayout {
 	//------------------------------------------------------------------------------------
 
     /**
-     * Prevents the suppression of tile rendering when view is moving
+     * Prevents the suppression of tile rendering when view is moving.
+     * False by default.
      */
-    public void disableSuppress() {
-        disableSuppress = true;
+    public void setSuppressRenderOnMovement ( boolean shouldSuppress ) {
+        shouldSuppressRenderOnMovement = shouldSuppress;
     }
 
 	/**
@@ -814,7 +815,7 @@ public class TileView extends ZoomPanLayout {
 	 * Restore visible state (generally after a call to .clear()
 	 * Appropriate for Activity.onResume
 	 */
-	public void resume(){
+	public void resume() {
 		updateViewport();
 		tileManager.requestRender();
 		sampleManager.update();
@@ -838,10 +839,10 @@ public class TileView extends ZoomPanLayout {
 
 
     private void renderOnMovement() {
-        if (disableSuppress) {
-            requestRender();
-        } else {
+        if (shouldSuppressRenderOnMovement) {
             suppressRender();
+        } else {
+            requestRender();
         }
     }
 
