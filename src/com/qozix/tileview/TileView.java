@@ -1290,4 +1290,8 @@ public class TileView extends ZoomPanLayout {
         return pathManager;
     }
 
+	public TileManager getTileManager() {
+		return tileManager;
+	}
+
 }
